@@ -4,6 +4,7 @@ import com.arslanca.dev.business.responses.GithubRepoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -18,6 +19,7 @@ public class GithubAdapter {
     private final String GITHUB_USERNAME = "postaldudegoespostal"; //hardcoded oldu bura da yapcak bişe yok şuan
 
     @Cacheable(value = "github-repos")
+    @Scheduled(fixedRate = 600000)
     public List<GithubRepoResponse> getRepos(){
         RestClient restClient = restClientBuilder.baseUrl("https://api.github.com").build();
         return restClient.get()

@@ -6,15 +6,15 @@ import java.util.List;
 
 @Data
 public class WakaTimeResponse {
-    private List<Heartbeat> data; // Liste döner, biz sonuncuyu (en günceli) alacağız
+    private List<Heartbeat> data;
 
     @Data
     public static class Heartbeat {
         private String project;
         private String branch;
-        private String editor;  // ideName
-        private String entity;  // currentlyEditingFile (Dosya adı)
-        private Double time;    // Unix Timestamp
+        private String editor;
+        private String entity;
+        private Double time;
     }
 
     @Data

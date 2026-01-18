@@ -20,13 +20,15 @@ public class ContactManager implements ContactService {
     @Override
     public void send(SendMailRequest sendMailRequest) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-
         mailMessage.setFrom(myEmail);
         mailMessage.setTo(myEmail);
-        mailMessage.setSubject("Portfolyodan Yeni Mesaj.");
 
-        String finalMessage = "Kimden: " + sendMailRequest.getSenderEmail() + "\n\n" +
-                "Mesajı:\n" + sendMailRequest.getMessage();
+        mailMessage.setReplyTo(sendMailRequest.getSenderEmail());
+
+        mailMessage.setSubject("Portfolyo İletişim: " + sendMailRequest.getSubject());
+
+        String finalMessage = "Ziyaretçi: " + sendMailRequest.getSenderEmail() + "\n\n" +
+                "Mesaj:\n" + sendMailRequest.getMessage();
 
         mailMessage.setText(finalMessage);
 

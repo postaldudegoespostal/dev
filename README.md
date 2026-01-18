@@ -8,4 +8,29 @@ benim kod yazdığım her an sitede anlık olarak hangi projede hangi dosyayı k
 blog yazısı sistemi falan olacak 0 tl harcıcam bu arada projeye. dümdüz AI'dan typescript yazdırıp single github page yapmak istemedim, biraz bildiğim şeyleri kullanmak lazım, zaten proje tabi ki,
 OPEN-CLOSED olacak istediğim kadar geliştireceğim artık zamanla.
 
-bu readme'yi de günlük yaptım ilerde değiştiririm herhalde profesyonel bir şey yaparım hadi yatacam artık amk
+bu readme'yi de günlük yaptım ilerde değiştiririm herhalde profesyonel bir şey yaparım hadi yatacam artık amk.
+
+**CHANGELOG:**
+email yollamaya eklendi - ratelimit eklendi
+
+yalandan hata yönetimi eklendi
+
+anlık stat düzeltildi
+
+blogpost CRUD'ları admin only yapıldı, memory'de credential'lar encrpyted.
+
+yalandan caching eklendi.
+
+
+---
+
+## TODO
+
+### Yorum Sistemi
+Giscus ile GitHub Discussions tabanlı yorum sistemi kurulacak, böylece kendi DB'de spam yönetimi yerine GitHub'ın moderasyon altyapısından faydalanılacak (React/Giscus).
+
+### GitHub Verilerini Zenginleştirme
+Repolardan README.md çekilip Markdown'dan HTML'e parse edilecek ve dil dağılımı hesaplanıp cache'lenecek (Java Spring/Markdown Parser/Redis).
+
+### Canlı Ziyaretçi Sayacı
+Websocket veya Server-Sent Events ile o an sitede kaç kişinin olduğu real-time gösterilecek (Spring WebSocket/SSE).
