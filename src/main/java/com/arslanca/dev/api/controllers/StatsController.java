@@ -15,7 +15,7 @@ public class StatsController {
 
     private final WakaTimeAdapter wakaTimeAdapter;
 
-    @GetMapping("/current") // Yeni endpoint: /api/stats/current
+    @GetMapping("/current")
     public StatsResponse getCurrentStatus() {
         return wakaTimeAdapter.getCurrentStatus();
     }

@@ -1,20 +1,21 @@
 package com.arslanca.dev.core.config;
 
+import com.arslanca.dev.core.utilities.interceptors.ExecutionTimeInterceptor;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final ExecutionTimeInterceptor executionTimeInterceptor;
+
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") //tüm url'ler
-                .allowedOrigins("http://localhost:3000", "http://localhost:5173") //frontend portları
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-
-
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(executionTimeInterceptor)
+                .addPathPatterns("/api/**");
     }
 }
-
