@@ -26,4 +26,5 @@ public class GithubAdapter {
                 .body(new ParameterizedTypeReference<List<GithubRepoResponse>>() {});
     }
 
+
 }
