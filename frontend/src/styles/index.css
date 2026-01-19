@@ -1,0 +1,8 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}

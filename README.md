@@ -8,7 +8,14 @@ benim kod yazdığım her an sitede anlık olarak hangi projede hangi dosyayı k
 blog yazısı sistemi falan olacak 0 tl harcıcam bu arada projeye. dümdüz AI'dan typescript yazdırıp single github page yapmak istemedim, biraz bildiğim şeyleri kullanmak lazım, zaten proje tabi ki,
 OPEN-CLOSED olacak istediğim kadar geliştireceğim artık zamanla.
 
-bu readme'yi de günlük yaptım ilerde değiştiririm herhalde profesyonel bir şey yaparım hadi yatacam artık amk.
+**update**
+
+backend tarafında çoğu şey bitti sayılır. backend'i yüzde 95 kendim yazdım, sadece wakatime api'sini bağlarken ai'dan yardım aldım (bir de ufak tefek logic işleri)
+backend'e bakıp "burada şunu bunu yanlış yapmışsın, ilerde bunun yüzünden başın ağrıyacak" diyen bir masterhand olmadığı için yanımda artık zamanla göreceğiz.
+geriye sadece front-end tarafında içeriği doldurmak kaldı temel şeyler genel olarak çalışıyor, bir sorun yok gibi duruyor.
+
+ileride AI integrasyonu yapabilirim bilmiyom. sunucu noktasında 0 lira harcayarak yapıyorum projeyi dolayısıyla fuck ai..
+
 
 **CHANGELOG:**
 email yollamaya eklendi - ratelimit eklendi
@@ -21,6 +28,17 @@ blogpost CRUD'ları admin only yapıldı, memory'de credential'lar encrpyted.
 
 yalandan caching eklendi.
 
+(baya bi şey ekledim de burayı updatelemeyi unutmuşum aklıma gelenleri yazayım)
+
+quiz system
+
+spa controller
+
+hardcoded şeyleri kaldırdım
+
+quizdeki cevaba özel yönlendirme var bakarsınız xd
+
+var işte baya bi şey amk
 
 ---
 
