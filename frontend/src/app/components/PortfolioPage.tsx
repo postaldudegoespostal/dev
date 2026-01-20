@@ -19,18 +19,17 @@ interface Project extends GithubRepoResponse {
 export function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const { role } = useUser();
-  const hasWelcomedMaster = useRef(false);
+  const { role, welcomeShown, setWelcomeShown } = useUser();
 
   useEffect(() => {
-    if (role === 'master' && !hasWelcomedMaster.current) {
+    if (role === 'master' && !welcomeShown) {
       toast.success("Access Granted. System Internals Unlocked.", {
         duration: 5000,
         className: "bg-green-500/10 border-green-500 text-green-500 font-mono"
       });
-      hasWelcomedMaster.current = true;
+      setWelcomeShown(true);
     }
-  }, [role]);
+  }, [role, welcomeShown, setWelcomeShown]);
 
   useEffect(() => {
     const fetchProjects = async () => {

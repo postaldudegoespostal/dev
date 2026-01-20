@@ -4,6 +4,7 @@ import { HomePage } from "@/app/components/HomePage";
 import { PortfolioPage } from "@/app/components/PortfolioPage";
 import { BlogPage } from "@/app/components/BlogPage";
 import { ContactPage } from "@/app/components/ContactPage";
+import { AboutPage } from "@/app/components/AboutPage";
 import { AIHelperWidget } from "@/app/components/AIHelperWidget";
 import { TechBackground } from "@/app/components/TechBackground";
 import { AdminBlogPage } from "@/app/components/AdminBlogPage";
@@ -30,6 +31,8 @@ function AppContent() {
       case "me":
       case "portfolio":
         return <PortfolioPage />;
+      case "about":
+        return <AboutPage />;
       case "blog":
         return <BlogPage />;
       case "contact":
@@ -65,11 +68,8 @@ function AppContent() {
       <footer className="border-t border-border mt-24">
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              © 2026 Developer Portfolio. Built with React & Tailwind CSS.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Forever learning, forever growing.
+            <p className="text-sm text-muted-foreground mr-auto">
+              © 2026 Built with React & Tailwind CSS.
             </p>
           </div>
         </div>

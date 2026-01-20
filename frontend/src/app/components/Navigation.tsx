@@ -16,6 +16,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
     { name: "Portfolio", path: "me" },
     { name: "Blog", path: "blog" },
     { name: "Contact", path: "contact" },
+    { name: "About Me", path: "about" },
   ];
 
   const handleMobileNav = (path: string) => {
