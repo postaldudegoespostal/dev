@@ -29,4 +29,17 @@ public class BlogManager implements BlogService {
         blogPost.setContent(request.getContent());
         blogRepository.save(blogPost);
     }
+
+    @Override
+    public void update(int id, CreateBlogRequest request) {
+        BlogPost blogPost = blogRepository.findById(id).orElseThrow(); //hata yönetimini nası yapcam bilmiyom tam
+        blogPost.setTitle(request.getTitle());
+        blogPost.setContent(request.getContent());
+        blogRepository.save(blogPost);
+    }
+
+    @Override
+    public void delete(int id) {
+        blogRepository.deleteById(id);
+    }
 }

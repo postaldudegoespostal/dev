@@ -8,4 +8,8 @@ import java.util.List;
 public interface BlogService {
     List<BlogPost> getAll();
     void add(CreateBlogRequest request);
+    void update(int id, CreateBlogRequest request);
+    void delete(int id);
+
+
 }

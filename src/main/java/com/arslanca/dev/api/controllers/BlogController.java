@@ -23,4 +23,14 @@ public class BlogController {
     public void add(@RequestBody CreateBlogRequest request){
         blogService.add(request);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable int id){
+        blogService.delete(id);
+    }
+    @PutMapping("/{id}")
+    public void update(@PathVariable int id, @RequestBody CreateBlogRequest request) {
+        blogService.update(id, request);
+    }
+
 }

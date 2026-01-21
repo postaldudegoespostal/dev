@@ -76,9 +76,19 @@ export const api = {
   },
   blogs: {
     getAll: () => client.get<BlogPost[]>('/blogs').then((res) => res.data),
+    add: (data: { title: string; content: string }, authHeader: string) =>
+      client.post('/blogs', data, { headers: { 'Authorization': authHeader } }),
+    update: (id: number, data: { title: string; content: string }, authHeader: string) =>
+      client.put(`/blogs/${id}`, data, { headers: { 'Authorization': authHeader } }),
+    delete: (id: number, authHeader: string) =>
+      client.delete(`/blogs/${id}`, { headers: { 'Authorization': authHeader } }),
   },
   simulation: {
     getRandom: () => client.get<SimulationScenarioResponse>('/simulation/random').then(res => res.data),
     verify: (data: VerifySimulationRequest) => client.post<VerificationResultResponse>('/simulation/verify', data).then(res => res.data)
+  },
+  admin: {
+    verify: (authHeader: string) =>
+      client.get('/admin/verify', { headers: { 'Authorization': authHeader } }),
   }
 };
