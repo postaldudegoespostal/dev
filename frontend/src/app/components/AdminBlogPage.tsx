@@ -12,6 +12,7 @@ import {
 } from "@/app/components/ui/select";
 import { api, BlogPost, PinnedProject, GithubRepoResponse } from "@/app/api"; // Added PinnedProject
 import { Trash2, Plus, LogOut, FileText, ChevronLeft, Edit, Layers } from "lucide-react"; // Added Layers
+import { toast } from "sonner";
 
 export function AdminBlogPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -121,6 +122,7 @@ export function AdminBlogPage() {
         await api.blogs.add({ title, content }, authHeader);
       }
       setStatus("success");
+      toast.success(editingId ? "Updated!" : "Published!", { description: "Blog post saved successfully." });
       setTitle("");
       setContent("");
       setEditingId(null);
@@ -128,7 +130,22 @@ export function AdminBlogPage() {
       fetchBlogs();
     } catch (error: any) {
       setStatus("error");
-      setErrorMessage(error.response?.status === 401 ? "Unauthorized" : "Failed to save post");
+      // setErrorMessage(error.response?.status === 401 ? "Unauthorized" : "Failed to save post");
+      if (error.response?.status === 401) {
+          toast.error("Error", { description: "Unauthorized session expired." });
+      } else if (error.response?.status === 400) {
+           const data = error.response.data;
+           if (data.errors) {
+               const msgs = Object.values(data.errors).join(", ");
+               toast.error("Validation Error", { description: msgs });
+           } else if (data.detail) {
+               toast.error("Business Error", { description: data.detail });
+           } else {
+               toast.error("Error", { description: "Invalid input." });
+           }
+      } else {
+          toast.error("Error", { description: "Failed to save post." });
+      }
     }
   };
 
@@ -153,6 +170,9 @@ export function AdminBlogPage() {
               }, authHeader);
           }
           setStatus("success");
+          toast.success(editingProjectId ? "Project updated!" : "Project pinned!", {
+              description: "Changes saved successfully."
+          });
           setProjectTitle("");
           setProjectDesc("");
           setProjectTags("");
@@ -162,7 +182,21 @@ export function AdminBlogPage() {
           fetchProjects();
       } catch (error: any) {
           setStatus("error");
-          setErrorMessage("Failed to save project");
+          if (error.response?.status === 401) {
+              toast.error("Error", { description: "Session expired." });
+          } else if (error.response?.status === 400) {
+              const data = error.response.data;
+              if (data.errors) {
+                  const msgs = Object.values(data.errors).join(", ");
+                  toast.error("Validation Error", { description: msgs });
+              } else if (data.detail) {
+                  toast.error("Hata", { description: data.detail });
+              } else {
+                  toast.error("Hata", { description: "Girdiğiniz verileri kontrol edin." });
+              }
+          } else {
+              toast.error("Error", { description: "Failed to save project." });
+          }
       }
   }
 
@@ -188,8 +222,10 @@ export function AdminBlogPage() {
     try {
       await api.blogs.delete(id, authHeader);
       fetchBlogs();
+      toast.success("Deleted", { description: "Blog post deleted." });
     } catch (error: any) {
-      alert("Delete failed: " + (error.response?.status === 401 ? "Unauthorized" : "Error"));
+      // alert("Delete failed: " + (error.response?.status === 401 ? "Unauthorized" : "Error"));
+      toast.error("Delete Failed", { description: error.response?.status === 401 ? "Unauthorized" : "Server Error" });
     }
   };
 
@@ -198,8 +234,9 @@ export function AdminBlogPage() {
       try {
           await api.pinnedProjects.delete(id, authHeader);
           fetchProjects();
+          toast.success("Deleted", { description: "Project deleted." });
       } catch (error) {
-          alert("Failed to delete project");
+          toast.error("Delete Failed", { description: "Could not delete project." });
       }
   }
 
@@ -286,12 +323,13 @@ export function AdminBlogPage() {
                         <ChevronLeft className="w-4 h-4 mr-1" /> Cancel
                     </Button>
                     </div>
-                    {/* ... (rest of blog form) ... */}
                     <Input
                         placeholder="Post Title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
+                        minLength={5}
+                        maxLength={250}
                         className="text-lg font-medium"
                     />
                     <Textarea
@@ -299,6 +337,7 @@ export function AdminBlogPage() {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         required
+                        maxLength={2000}
                         className="min-h-[300px] font-mono text-sm leading-relaxed"
                     />
                     <div className="flex justify-end pt-4">

@@ -5,7 +5,7 @@ import { Input } from "@/app/components/ui/input";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Send, Mail, Github, Linkedin, Twitter } from "lucide-react";
 import { api } from "@/app/api";
-import { useToast } from "@/app/components/ui/use-toast"; // Assuming toast exists, otherwise I will use alert or just console
+import { toast } from "sonner";
 
 export function ContactPage() {
   const [email, setEmail] = useState("");
@@ -27,6 +27,10 @@ export function ContactPage() {
       console.log("Form submitted:", { email, message });
       setSubmitted(true);
       
+      toast.success("Mesaj gönderildi!", {
+        description: "En kısa sürede dönüş yapacağım.",
+      });
+
       // Reset form after 3 seconds
       setTimeout(() => {
         setEmail("");
@@ -34,9 +38,43 @@ export function ContactPage() {
         setSubmitted(false);
       }, 3000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send message", error);
-      // Handle error (maybe show a toast)
+
+      if (error.response) {
+        if (error.response.status === 429) {
+          toast.error("Hız Sınırı Aşıldı", {
+            description: error.response.data || "Çok fazla mesaj gönderdiniz, lütfen bekleyin.",
+          });
+        } else if (error.response.status === 400) {
+           // Handle Validation or Business Exception
+           const data = error.response.data;
+           if (data.errors) {
+               // Validation ValidationProblemDetails
+               const errorMessages = Object.values(data.errors).join(", ");
+               toast.error("Hata", {
+                   description: errorMessages,
+               });
+           } else if (data.detail) {
+               // Business Exception ProblemDetails
+               toast.error("Hata", {
+                   description: data.detail,
+               });
+           } else {
+             toast.error("Hata", {
+               description: "Mesaj gönderilemedi. Lütfen alanları kontrol edin.",
+             });
+           }
+        } else {
+             toast.error("Sunucu Hatası", {
+               description: "Bir şeyler ters gitti, lütfen daha sonra tekrar deneyin.",
+             });
+        }
+      } else {
+         toast.error("Bağlantı Hatası", {
+           description: "Sunucuya ulaşılamıyor.",
+         });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +134,8 @@ export function ContactPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell me about your project, idea, or just say hello..."
                 required
+                minLength={5}
+                maxLength={500}
                 rows={8}
                 className="resize-none bg-background border-border focus:border-foreground/20"
               />

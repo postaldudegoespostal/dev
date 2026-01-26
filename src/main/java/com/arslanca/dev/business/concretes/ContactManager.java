@@ -2,8 +2,10 @@ package com.arslanca.dev.business.concretes;
 
 import com.arslanca.dev.business.abstracts.ContactService;
 import com.arslanca.dev.business.dto.requests.SendMailRequest;
+import com.arslanca.dev.core.utilities.exceptions.types.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,10 @@ public class ContactManager implements ContactService {
 
         mailMessage.setText(finalMessage);
 
-        javaMailSender.send(mailMessage);
+        try {
+            javaMailSender.send(mailMessage);
+        } catch (MailException e) {
+            throw new BusinessException("E-posta servisinde geçici bir sorun var, lütfen daha sonra tekrar deneyin.");
+        }
     }
 }
