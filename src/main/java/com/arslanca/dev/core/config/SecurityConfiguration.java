@@ -16,9 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import jakarta.servlet.DispatcherType;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfiguration {
 
     @Bean
@@ -54,8 +56,8 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        System.out.println("Configured Admin User: '" + adminUsername + "'");
-        
+        log.info("Configured Admin User: '{}'", adminUsername);
+
         UserDetails admin = User.builder()
                 .username(adminUsername)
                 .password(encoder.encode(adminPassword))

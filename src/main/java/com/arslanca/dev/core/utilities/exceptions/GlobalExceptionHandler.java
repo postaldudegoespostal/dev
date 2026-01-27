@@ -11,16 +11,19 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BusinessProblemDetails handleBusinessException(BusinessException businessException) {
+        log.warn("Business Exception: {}", businessException.getMessage());
         BusinessProblemDetails problemDetails = new BusinessProblemDetails();
         problemDetails.setDetail(businessException.getMessage());
         return problemDetails;
@@ -29,6 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetails handleNotFoundException(NotFoundException notFoundException) {
+        log.warn("Not Found Exception: {}", notFoundException.getMessage());
         ProblemDetails problemDetails = new ProblemDetails();
         problemDetails.setTitle("Not Found");
         problemDetails.setDetail(notFoundException.getMessage());
@@ -40,6 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationProblemDetails handleValidationException(MethodArgumentNotValidException exception) {
+        log.warn("Validation Failed: {}", exception.getMessage());
         ValidationProblemDetails validationProblemDetails = new ValidationProblemDetails();
         validationProblemDetails.setDetail("Validation failed");
 
@@ -55,6 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetails handleGeneralException(Exception e) {
+        log.error("An unexpected error occurred", e);
         ProblemDetails problemDetails = new ProblemDetails();
         problemDetails.setTitle("Internal Server Error");
         problemDetails.setDetail(e.getMessage());
