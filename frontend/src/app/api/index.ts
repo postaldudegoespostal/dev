@@ -1,24 +1,41 @@
 import axios from 'axios';
-
 const client = axios.create({
   baseURL: '/api',
 });
-
-// Response Types matches Backend DTOs
+// Axios interceptor to add the token to every request
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+// Response interceptor to handle token expiration
+client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            if (window.location.pathname === '/admin') {
+               window.location.reload();
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 export interface SendMailRequest {
   senderEmail: string;
   subject: string;
   message: string;
 }
-
 export interface GithubRepoResponse {
   name: string;
   description: string;
-  html_url: string; // mapped from url in backend
-  stargazers_count: string; // mapped from stars
+  html_url: string;
+  stargazers_count: string;
   language: string;
 }
-
 export interface StatsResponse {
   isCodingNow: boolean;
   ideName: string;
@@ -28,14 +45,12 @@ export interface StatsResponse {
   totalSpentOnCurrentProject: string;
   totalSpentOnAllProjects: string;
 }
-
 export interface BlogPost {
   id: number;
   title: string;
   content: string;
   createdDate: string;
 }
-
 export interface PaginatedResponse<T> {
   content: T[];
   totalPages: number;
@@ -46,7 +61,6 @@ export interface PaginatedResponse<T> {
   last: boolean;
   empty: boolean;
 }
-
 export interface SimulationScenarioResponse {
   id: string;
   title: string;
@@ -62,19 +76,16 @@ export interface SimulationScenarioResponse {
     description: string;
   }[];
 }
-
 export interface VerifySimulationRequest {
   scenarioId: string;
   selectedOptionId: string;
 }
-
 export interface VerificationResultResponse {
   success: boolean;
-  userLevel: string; // SENIOR, MID, JUNIOR
+  userLevel: string;
   message: string;
   redirectPath: string;
 }
-
 export interface PinnedProject {
   id: number;
   title: string;
@@ -82,49 +93,47 @@ export interface PinnedProject {
   tags: string[];
   githubUrl?: string;
 }
-
 export interface CreatePinnedProjectRequest {
   title: string;
   description: string;
   tags: string[];
   githubUrl?: string;
 }
-
+export interface AuthenticationResponse {
+  token: string;
+  refreshToken: string;
+}
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
 export const api = {
+  auth: {
+    login: (data: LoginRequest) => client.post<AuthenticationResponse>('/auth/login', data).then(res => res.data),
+  },
   contact: {
     sendMessage: (data: SendMailRequest) => client.post('/contact', data),
   },
   projects: {
-    getAll: (pageNo = 1, pageSize = 10) => client.get<GithubRepoResponse[]>(`/projects?pageNo=${pageNo}&pageSize=${pageSize}`).then((res) => res.data),
+    getAll: (pageNo = 1, pageSize = 10) => client.get<GithubRepoResponse[]>((`/projects?pageNo=${pageNo}&pageSize=${pageSize}`)).then((res) => res.data),
   },
-    pinnedProjects: {
+  pinnedProjects: {
     getAll: () => client.get<PinnedProject[]>('/pinned-projects').then((res) => res.data),
-    add: (data: CreatePinnedProjectRequest, authHeader: string) =>
-      client.post('/pinned-projects/admin/add', data, { headers: { 'Authorization': authHeader } }),
-    update: (id: number, data: CreatePinnedProjectRequest, authHeader: string) =>
-      client.put(`/pinned-projects/admin/update/${id}`, data, { headers: { 'Authorization': authHeader } }),
-    delete: (id: number, authHeader: string) =>
-      client.delete(`/pinned-projects/admin/delete/${id}`, { headers: { 'Authorization': authHeader } }),
+    add: (data: CreatePinnedProjectRequest) => client.post('/pinned-projects/admin/add', data),
+    update: (id: number, data: CreatePinnedProjectRequest) => client.put((`/pinned-projects/admin/update/${id}`), data),
+    delete: (id: number) => client.delete((`/pinned-projects/admin/delete/${id}`)),
   },
   stats: {
     getCurrent: () => client.get<StatsResponse>('/stats/current').then((res) => res.data),
   },
   blogs: {
-    getAll: (pageNo = 1, pageSize = 10) =>
-      client.get<PaginatedResponse<BlogPost>>(`/blogs?pageNo=${pageNo}&pageSize=${pageSize}`).then((res) => res.data),
-    add: (data: { title: string; content: string }, authHeader: string) =>
-      client.post('/blogs', data, { headers: { 'Authorization': authHeader } }),
-    update: (id: number, data: { title: string; content: string }, authHeader: string) =>
-      client.put(`/blogs/${id}`, data, { headers: { 'Authorization': authHeader } }),
-    delete: (id: number, authHeader: string) =>
-      client.delete(`/blogs/${id}`, { headers: { 'Authorization': authHeader } }),
+    getAll: (pageNo = 1, pageSize = 10) => client.get<PaginatedResponse<BlogPost>>((`/blogs?pageNo=${pageNo}&pageSize=${pageSize}`)).then((res) => res.data),
+    add: (data: { title: string; content: string }) => client.post('/blogs', data),
+    update: (id: number, data: { title: string; content: string }) => client.put((`/blogs/${id}`), data),
+    delete: (id: number) => client.delete((`/blogs/${id}`)),
   },
   simulation: {
     getRandom: () => client.get<SimulationScenarioResponse>('/simulation/random').then(res => res.data),
     verify: (data: VerifySimulationRequest) => client.post<VerificationResultResponse>('/simulation/verify', data).then(res => res.data)
-  },
-  admin: {
-    verify: (authHeader: string) =>
-      client.get('/admin/verify', { headers: { 'Authorization': authHeader } }),
   }
 };

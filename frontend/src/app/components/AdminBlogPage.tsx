@@ -16,11 +16,19 @@ import { toast } from "sonner";
 
 export function AdminBlogPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authHeader, setAuthHeader] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"blog" | "projects">("blog"); // Added tab state
+  const [activeTab, setActiveTab] = useState<"blog" | "projects">("blog");
+
+  // Initial Check for existing token
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   // Blog State
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -88,18 +96,21 @@ export function AdminBlogPage() {
     setStatus("loading");
     setErrorMessage("");
 
-    const header = 'Basic ' + btoa(username + ':' + password);
-
     try {
-      await api.admin.verify(header);
-      setAuthHeader(header);
+      const response = await api.auth.login({ username, password });
+
+      // Store tokens
+      localStorage.setItem('access_token', response.token);
+      if (rememberMe) {
+        localStorage.setItem('refresh_token', response.refreshToken);
+      }
+
       setIsLoggedIn(true);
-      // Fetches are now handled by useEffect based on activeTab
       setStatus("idle");
     } catch (error: any) {
       console.error(error);
       setStatus("error");
-      if (error.response?.status === 401) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
         setErrorMessage("Kullanıcı adı veya şifre hatalı!");
       } else {
         setErrorMessage("Giriş yapılırken bir hata oluştu.");
@@ -108,8 +119,9 @@ export function AdminBlogPage() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setIsLoggedIn(false);
-    setAuthHeader("");
     setUsername("");
     setPassword("");
     setEditingId(null);
@@ -120,9 +132,9 @@ export function AdminBlogPage() {
     setStatus("loading");
     try {
       if (editingId) {
-        await api.blogs.update(editingId, { title, content }, authHeader);
+        await api.blogs.update(editingId, { title, content });
       } else {
-        await api.blogs.add({ title, content }, authHeader);
+        await api.blogs.add({ title, content });
       }
       setStatus("success");
       toast.success(editingId ? "Updated!" : "Published!", { description: "Blog post saved successfully." });
@@ -163,14 +175,14 @@ export function AdminBlogPage() {
                   description: projectDesc,
                   tags: tagsArray,
                   githubUrl: projectGithub || undefined
-              }, authHeader);
+              });
           } else {
               await api.pinnedProjects.add({
                   title: projectTitle,
                   description: projectDesc,
                   tags: tagsArray,
                   githubUrl: projectGithub || undefined
-              }, authHeader);
+              });
           }
           setStatus("success");
           toast.success(editingProjectId ? "Project updated!" : "Project pinned!", {
@@ -223,11 +235,10 @@ export function AdminBlogPage() {
     if (!confirm("Are you sure you want to delete this post?")) return;
 
     try {
-      await api.blogs.delete(id, authHeader);
+      await api.blogs.delete(id);
       fetchBlogs();
       toast.success("Deleted", { description: "Blog post deleted." });
     } catch (error: any) {
-      // alert("Delete failed: " + (error.response?.status === 401 ? "Unauthorized" : "Error"));
       toast.error("Delete Failed", { description: error.response?.status === 401 ? "Unauthorized" : "Server Error" });
     }
   };
@@ -235,7 +246,7 @@ export function AdminBlogPage() {
   const handleDeleteProject = async (id: number) => {
       if (!confirm("Delete project?")) return;
       try {
-          await api.pinnedProjects.delete(id, authHeader);
+          await api.pinnedProjects.delete(id);
           fetchProjects();
           toast.success("Deleted", { description: "Project deleted." });
       } catch (error) {
@@ -273,7 +284,22 @@ export function AdminBlogPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">Login</Button>
+            <div className="flex items-center space-x-2 pb-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 bg-background"
+              />
+              <label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Remember me (15 days)
+              </label>
+            </div>
+            {errorMessage && <p className="text-red-500 text-sm text-center">{errorMessage}</p>}
+            <Button type="submit" className="w-full" disabled={status === "loading"}>
+              {status === "loading" ? "Logging in..." : "Login"}
+            </Button>
           </form>
         </motion.div>
       </div>

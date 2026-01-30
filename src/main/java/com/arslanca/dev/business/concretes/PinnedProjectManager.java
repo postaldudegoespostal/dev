@@ -8,7 +8,7 @@ import com.arslanca.dev.business.mappers.PinnedProjectMapper;
 import com.arslanca.dev.core.utilities.exceptions.types.BusinessException;
 import com.arslanca.dev.core.utilities.exceptions.types.NotFoundException;
 import com.arslanca.dev.dataAccess.PinnedProjectRepository;
-import com.arslanca.dev.entities.PinnedProject;
+import com.arslanca.dev.entities.concretes.PinnedProject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

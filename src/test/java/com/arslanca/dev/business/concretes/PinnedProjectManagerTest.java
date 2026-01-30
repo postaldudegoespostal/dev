@@ -5,13 +5,10 @@ import com.arslanca.dev.business.dto.requests.UpdatePinnedProjectRequest;
 import com.arslanca.dev.business.dto.responses.PinnedProjectResponse;
 import com.arslanca.dev.business.mappers.PinnedProjectMapper;
 import com.arslanca.dev.dataAccess.PinnedProjectRepository;
-import com.arslanca.dev.entities.BlogPost;
-import com.arslanca.dev.entities.PinnedProject;
+import com.arslanca.dev.entities.concretes.PinnedProject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.data.domain.Page;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 import java.util.Optional;

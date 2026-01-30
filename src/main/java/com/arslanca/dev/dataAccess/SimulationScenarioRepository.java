@@ -1,6 +1,6 @@
 package com.arslanca.dev.dataAccess;
 
-import com.arslanca.dev.entities.SimulationScenario;
+import com.arslanca.dev.entities.concretes.SimulationScenario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

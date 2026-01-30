@@ -8,7 +8,7 @@ import com.arslanca.dev.business.mappers.BlogMapper;
 import com.arslanca.dev.core.utilities.exceptions.types.BusinessException;
 import com.arslanca.dev.core.utilities.exceptions.types.NotFoundException;
 import com.arslanca.dev.dataAccess.BlogRepository;
-import com.arslanca.dev.entities.BlogPost;
+import com.arslanca.dev.entities.concretes.BlogPost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

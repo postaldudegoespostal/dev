@@ -7,8 +7,8 @@ import com.arslanca.dev.business.dto.responses.VerificationResultResponse;
 import com.arslanca.dev.business.mappers.SimulationMapper;
 import com.arslanca.dev.dataAccess.SimulationOptionRepository;
 import com.arslanca.dev.dataAccess.SimulationScenarioRepository;
-import com.arslanca.dev.entities.SimulationOption;
-import com.arslanca.dev.entities.SimulationScenario;
+import com.arslanca.dev.entities.concretes.SimulationOption;
+import com.arslanca.dev.entities.concretes.SimulationScenario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
