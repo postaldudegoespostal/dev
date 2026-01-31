@@ -100,6 +100,10 @@ export interface CreatePinnedProjectRequest {
   tags: string[];
   githubUrl?: string;
 }
+export interface CreateTechStackRequest {
+  name: string;
+  type: string;
+}
 export interface AuthenticationResponse {
   token: string;
   refreshToken: string;
@@ -107,6 +111,11 @@ export interface AuthenticationResponse {
 export interface LoginRequest {
   username: string;
   password: string;
+}
+export interface TechStackResponse {
+    id: number;
+    name: string;
+    type: string;
 }
 export const api = {
   auth: {
@@ -136,5 +145,11 @@ export const api = {
   simulation: {
     getRandom: () => client.get<SimulationScenarioResponse>('/simulation/random').then(res => res.data),
     verify: (data: VerifySimulationRequest) => client.post<VerificationResultResponse>('/simulation/verify', data).then(res => res.data)
+  },
+  techStacks: {
+    getAll: () => client.get<TechStackResponse[]>('/techstacks').then(res => res.data),
+    add: (data: CreateTechStackRequest) => client.post('/techstacks/admin', data),
+    update: (id: number, data: CreateTechStackRequest) => client.put(`/techstacks/admin/${id}`, data),
+    delete: (id: number) => client.delete(`/techstacks/admin/${id}`),
   }
 };

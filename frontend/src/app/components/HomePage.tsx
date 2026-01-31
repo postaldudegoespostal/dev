@@ -44,6 +44,18 @@ export function HomePage() {
   const [showWakaTime, setShowWakaTime] = useState(false);
   const { role, welcomeShown, setWelcomeShown } = useUser();
   const [isCoding, setIsCoding] = useState(false);
+  const [techStack, setTechStack] = useState<{ current: string[], learning: string[] }>({
+      current: [],
+      learning: []
+  });
+
+  useEffect(() => {
+      api.techStacks.getAll().then(data => {
+          const current = data.filter(t => t.type === 'CURRENT').map(t => t.name);
+          const learning = data.filter(t => t.type === 'ADVANCING').map(t => t.name);
+          setTechStack({ current, learning });
+      }).catch(err => console.error("Failed to fetch tech stacks", err));
+  }, []);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -80,16 +92,6 @@ export function HomePage() {
       }
   }, [role, welcomeShown, setWelcomeShown]);
 
-  const techStack = {
-    learning: ["Kotlin", "AWS", "PostgreSQL", "MySQL"],
-    current: [
-      "Java",
-      "Spring Boot",
-      "Python",
-      "Docker",
-      "Git",
-    ],
-  };
 
   return (
     <div className="min-h-screen pt-20 relative z-10">
