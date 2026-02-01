@@ -51,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Check if token is revoked
         if (revokedTokenRepository.findByToken(jwt).isPresent()) {
             filterChain.doFilter(request, response);
             return;
