@@ -17,6 +17,17 @@ public class RateLimitService {
         return cache.computeIfAbsent(ipAddress, this::newBucket);
     }
 
+    public Bucket resolveLoginBucket(String ipAddress) {
+        return cache.computeIfAbsent("login:" + ipAddress, this::newLoginBucket);
+    }
+
+    private Bucket newLoginBucket(String apiKey) {
+        Bandwidth limit = Bandwidth.classic(5, Refill.greedy(5, Duration.ofMinutes(15)));
+        return Bucket.builder()
+                .addLimit(limit)
+                .build();
+    }
+
     private Bucket newBucket(String apiKey) {
         Bandwidth limit = Bandwidth.classic(3, Refill.greedy(3, Duration.ofHours(1)));
 

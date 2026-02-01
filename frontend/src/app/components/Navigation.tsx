@@ -1,28 +1,22 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { WakaTimeLiveStatus } from "@/app/components/WakaTimeLiveStatus";
 import { Menu, X } from "lucide-react";
 
-interface NavigationProps {
-  currentPage: string;
-  onNavigate: (page: string) => void;
-}
-
-export function Navigation({ currentPage, onNavigate }: NavigationProps) {
+export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
-    { name: "Home", path: "home" },
-    { name: "Portfolio", path: "me" },
-    { name: "Blog", path: "blog" },
-    { name: "Contact", path: "contact" },
-    { name: "About Me", path: "about" },
+    { name: "Home", path: "/" },
+    { name: "Portfolio", path: "/me" },
+    { name: "Blog", path: "/blog" },
+    { name: "Contact", path: "/contact" },
+    { name: "About Me", path: "/about" },
   ];
 
-  const handleMobileNav = (path: string) => {
-    onNavigate(path);
-    setIsOpen(false);
-  };
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -30,15 +24,13 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
         <div className="flex items-center justify-between">
           {/* Logo/Name with Live Status */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-            <motion.button
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              onClick={() => onNavigate("home")}
+            <Link
+              to="/"
               className="text-xl tracking-tight text-foreground hover:text-primary transition-colors flex-shrink-0 text-left"
             >
               <span className="font-medium">arslanca</span>
               <span className="text-primary">.dev</span>
-            </motion.button>
+            </Link>
 
             {/* WakaTime Live Status - positioned below on mobile, next to it on desktop */}
             <motion.div
@@ -56,26 +48,29 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             animate={{ opacity: 1, x: 0 }}
             className="hidden md:flex items-center gap-1"
           >
-            {links.map((link) => (
-              <button
-                key={link.path}
-                onClick={() => onNavigate(link.path)}
-                className={`relative px-4 py-2 transition-colors ${
-                  currentPage === link.path
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {link.name}
-                {currentPage === link.path && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(220,38,38,0.5)]"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </button>
-            ))}
+            {links.map((link) => {
+              const isActive = currentPath === link.path || (link.path === "/me" && currentPath === "/portfolio");
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`relative px-4 py-2 transition-colors ${
+                    isActive
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {link.name}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(220,38,38,0.5)]"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </motion.div>
 
           {/* Mobile Menu Toggle */}
@@ -98,22 +93,24 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-lg overflow-hidden"
+            className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl"
           >
-            <div className="flex flex-col p-4 gap-2">
-              {links.map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => handleMobileNav(link.path)}
-                  className={`px-4 py-3 text-left rounded-md transition-colors text-lg ${
-                    currentPage === link.path
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  {link.name}
-                </button>
-              ))}
+            <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
+              {links.map((link) => {
+                const isActive = currentPath === link.path || (link.path === "/me" && currentPath === "/portfolio");
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`text-2xl font-light tracking-tight transition-colors ${
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
         )}

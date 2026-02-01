@@ -1,24 +1,26 @@
 package com.arslanca.dev.entities;
 
-import com.arslanca.dev.entities.enums.StackLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Data
-@Table(name = "tech_stacks")
-@AllArgsConstructor
-@NoArgsConstructor
-public class TechStack {
+import java.time.Instant;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+public class RevokedToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    @Column(unique = true, nullable = false)
+    private String token;
 
-    @Enumerated(EnumType.STRING)
-    private StackLevel type;
+    @Column(nullable = false)
+    private Instant expiryDate;
 }

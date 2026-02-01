@@ -1,24 +1,24 @@
 import axios from 'axios';
 const client = axios.create({
   baseURL: '/api',
+  withCredentials: true,
 });
-// Axios interceptor to add the token to every request
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+
 // Response interceptor to handle token expiration
 client.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            if (window.location.pathname === '/admin') {
-               window.location.reload();
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                await client.post('/auth/refresh-token');
+                return client(originalRequest);
+            } catch (err) {
+                if (window.location.pathname.startsWith('/admin')) {
+                   // window.location.reload();
+                   // Don't reload, just fail. Login page will show.
+                }
             }
         }
         return Promise.reject(error);
@@ -111,6 +111,7 @@ export interface AuthenticationResponse {
 export interface LoginRequest {
   username: string;
   password: string;
+  rememberMe?: boolean;
 }
 export interface TechStackResponse {
     id: number;
@@ -120,6 +121,8 @@ export interface TechStackResponse {
 export const api = {
   auth: {
     login: (data: LoginRequest) => client.post<AuthenticationResponse>('/auth/login', data).then(res => res.data),
+    check: () => client.get('/auth/check'),
+    logout: () => client.post('/auth/logout'),
   },
   contact: {
     sendMessage: (data: SendMailRequest) => client.post('/contact', data),

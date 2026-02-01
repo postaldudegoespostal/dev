@@ -42,6 +42,8 @@ var işte baya bi şey amk
 
 wakatime bug'ı çözüldü
 
+BU JWT AUTH'U SIKECEM YAKINDA
+
 ---
 
 ## TODO

@@ -43,12 +43,10 @@ public class JwtSecurity {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-
-        return buildToken(extraClaims, userDetails, 1000L * 60 * 60 * 24);
+        return buildToken(extraClaims, userDetails, 1000L * 60 * 15);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        // 15 günlük refresh token
         return buildToken(new HashMap<>(), userDetails, 1000L * 60 * 60 * 24 * 15);
     }
 
@@ -72,7 +70,7 @@ public class JwtSecurity {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 

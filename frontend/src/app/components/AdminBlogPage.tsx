@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -16,20 +17,14 @@ import { toast } from "sonner";
 import { ContentRenderer } from "./ContentRenderer";
 
 export function AdminBlogPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"blog" | "projects" | "techstacks">("blog");
-
-  // Initial Check for existing token
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+  const activeTab = (searchParams.get("tab") as "blog" | "projects" | "techstacks") || "blog";
+  const setActiveTab = (tab: string) => setSearchParams({ tab });
 
   // Blog State
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -57,6 +52,18 @@ export function AdminBlogPage() {
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await api.auth.check();
+        setIsLoggedIn(true);
+      } catch (e) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const fetchBlogs = async () => {
     try {
@@ -113,13 +120,7 @@ export function AdminBlogPage() {
     setErrorMessage("");
 
     try {
-      const response = await api.auth.login({ username, password });
-
-      // Store tokens
-      localStorage.setItem('access_token', response.token);
-      if (rememberMe) {
-        localStorage.setItem('refresh_token', response.refreshToken);
-      }
+      await api.auth.login({ username, password, rememberMe });
 
       setIsLoggedIn(true);
       setStatus("idle");
@@ -134,9 +135,12 @@ export function AdminBlogPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  const handleLogout = async () => {
+    try {
+        await api.auth.logout();
+    } catch (e) {
+        console.error(e);
+    }
     setIsLoggedIn(false);
     setUsername("");
     setPassword("");

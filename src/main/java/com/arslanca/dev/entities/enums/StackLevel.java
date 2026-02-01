@@ -1,4 +1,4 @@
-package com.arslanca.dev.entities;
+package com.arslanca.dev.entities.enums;
 
 public enum StackLevel {
     CURRENT,

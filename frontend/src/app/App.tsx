@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { Navigation } from "@/app/components/Navigation";
 import { HomePage } from "@/app/components/HomePage";
 import { PortfolioPage } from "@/app/components/PortfolioPage";
@@ -13,36 +14,20 @@ import { QuizModal } from "@/app/components/QuizModal";
 import { Toaster } from "@/app/components/ui/sonner";
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState("home");
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Simple URL handling for initial load
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path === "/admin") setCurrentPage("admin");
-    else if (path === "/me" || path === "/portfolio") setCurrentPage("me");
-    else if (path === "/blog") setCurrentPage("blog");
-    else if (path === "/contact") setCurrentPage("contact");
-  }, []);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case "home":
-        return <HomePage />;
-      case "me":
-      case "portfolio":
-        return <PortfolioPage />;
-      case "about":
-        return <AboutPage />;
-      case "blog":
-        return <BlogPage />;
-      case "contact":
-        return <ContactPage />;
-      case "admin":
-        return <AdminBlogPage />;
-      default:
-        return <HomePage />;
-    }
+  // Map path to page name for old logic if needed, but better to use routes
+  const getPageFromPath = (path: string) => {
+    if (path === "/admin") return "admin";
+    if (path === "/me" || path === "/portfolio") return "me";
+    if (path === "/blog") return "blog";
+    if (path === "/contact") return "contact";
+    if (path === "/about") return "about";
+    return "home";
   };
+
+  const currentPage = getPageFromPath(location.pathname);
 
   return (
     <div className="min-h-screen bg-background text-foreground dark relative">
@@ -50,15 +35,28 @@ function AppContent() {
       <TechBackground />
       
       {/* Navigation and Content passed down */}
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
-      
+      <Navigation />
+
       <main className="relative z-10">
-          {renderPage()}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/me" element={<PortfolioPage />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin" element={<AdminBlogPage />} />
+            <Route path="*" element={<HomePage />} />
+          </Routes>
       </main>
       
       {/* Quiz Modal handles its own visibility based on context but needs to route */}
-      <QuizModal onNavigate={(page) => setCurrentPage(page)} />
-      
+      <QuizModal onNavigate={(page) => {
+          if (page === "home") navigate("/");
+          else navigate(`/${page}`);
+      }} />
+
       {/* AI Helper Widget - Fixed Bottom Right */}
       <AIHelperWidget />
       
@@ -80,8 +78,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <UserProvider>
-      <AppContent />
-    </UserProvider>
+    <BrowserRouter>
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
+    </BrowserRouter>
   );
 }
