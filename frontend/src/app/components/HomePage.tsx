@@ -11,42 +11,152 @@ import { useConfig } from "@/app/context/ConfigContext";
 
 // --- Crber-Minimalism Components ---
 
-const TextDecode = ({ text, className, delay = 0 }: { text: string, className?: string, delay?: number }) => {
-  const [displayText, setDisplayText] = useState("");
-  const [started, setStarted] = useState(false);
+const TerminalSimulator = () => {
+  const [showCommand, setShowCommand] = useState(false);
+  const [command, setCommand] = useState("");
+  const [showOutput, setShowOutput] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  const fullCommand = "cat ~/motto.txt";
+  const motto = "I choose simple. I build systems that work, systems that grow. No magic. Just logic.";
 
   useEffect(() => {
-    const timeout = setTimeout(() => setStarted(true), delay);
-    return () => clearTimeout(timeout);
-  }, [delay]);
+    // Cursor blink
+    const cursorInterval = setInterval(() => {
+      setCursorVisible(prev => !prev);
+    }, 530);
+
+    // Wait 2 seconds after neofetch, then start typing
+    const commandStartTimer = setTimeout(() => {
+      setShowCommand(true);
+    }, 2000);
+
+    return () => {
+      clearInterval(cursorInterval);
+      clearTimeout(commandStartTimer);
+    };
+  }, []);
 
   useEffect(() => {
-    if (!started) return;
+    if (!showCommand) return;
 
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(text
-        .split("")
-        .map((letter, index) => {
-          if (index < iteration) {
-            return text[index];
-          }
-          return Math.random() > 0.5 ? "1" : "0";
-        })
-        .join("")
-      );
-
-      if (iteration >= text.length) {
-        clearInterval(interval);
+    // Type command
+    let currentIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (currentIndex <= fullCommand.length) {
+        setCommand(fullCommand.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setTimeout(() => {
+          setShowOutput(true);
+        }, 300);
       }
+    }, 100);
 
-      iteration += 1 / 2; // Speed of decoding
-    }, 30);
-    return () => clearInterval(interval);
-  }, [text, started]);
+    return () => clearInterval(typeInterval);
+  }, [showCommand]);
 
-  return <span className={className}>{displayText || (started ? "" : <span className="opacity-0">{text}</span>)}</span>;
-}
+  const neofetchArt = `       ___
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡇⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣾⠟⠀⣀⣠⠄⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⢠⣶⣿⠟⠁⢠⣾⠋⠁⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠹⣿⡇⠀⠀⠸⣿⡄⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠙⠷⡀⠀⠀⢹⠗⠀⠀⠀⠀⠀⠀
+      ⠀⠀⢀⣤⣴⡖⠒⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠒⢶⣄
+      ⠀⠀⠈⠙⢛⣻⠿⠿⠿⠟⠛⠛⠛⠋⠉⠀⠀⠀⣸⡿
+      ⠀⠀⠀⠀⠛⠿⣷⣶⣶⣶⣶⣾⠿⠗⠂⠀⢀⠴⠛⠁
+      ⠀⠀⠀⠀⠀⢰⣿⣦⣤⣤⣤⣴⣶⣶⠄⠀⠀⠀⠀⠀
+      ⣀⣤⡤⠄⠀⠀⠈⠉⠉⠉⠉⠉⠀⠀⠀⠀⢀⡀⠀⠀
+      ⠻⣿⣦⣄⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣠⣴⠾⠃⠀⢀
+      ⠀⠀⠈⠉⠛⠛⠛⠛⠛⠛⠛⠛⠋⠉⠁⠀⣀⣤⡶⠋
+      ⠀⠀⠀⠀⠐⠒⠀⠠⠤⠤⠤⠶⠶⠚⠛⠛⠉⠀⠀⠀`;
+
+  return (
+    <div className="w-full max-w-5xl mx-auto mb-16">
+      <div className="bg-[#0a0a0a] rounded-lg border border-zinc-800/50 shadow-2xl overflow-hidden font-mono text-sm">
+        {/* Terminal Header */}
+        <div className="bg-zinc-900/50 px-4 py-2 flex items-center gap-2 border-b border-zinc-800/50">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+          </div>
+          <span className="text-zinc-500 text-xs ml-2">kitty</span>
+        </div>
+
+        {/* Terminal Body */}
+        <div className="p-6 min-h-[450px]">
+          {/* Neofetch display - Always visible */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex gap-8 mb-6"
+          >
+            {/* ASCII Art */}
+            <pre className="text-green-400 text-xs leading-tight whitespace-pre">
+{neofetchArt}
+            </pre>
+
+            {/* System Info */}
+            <div className="flex-1 text-xs space-y-1">
+              <div><span className="text-green-400">arslanca</span><span className="text-white">@</span><span className="text-green-400">root</span></div>
+              <div className="text-zinc-500">-----------</div>
+              <div><span className="text-green-400 font-bold">OS:</span> <span className="text-white">ArchLinux x86_64</span></div>
+              <div><span className="text-green-400 font-bold">Host:</span> <span className="text-white">Developer Workstation</span></div>
+              <div><span className="text-green-400 font-bold">Kernel:</span> <span className="text-white">6.18.8-arch</span></div>
+              <div><span className="text-green-400 font-bold">Uptime:</span> <span className="text-white">∞ (always coding)</span></div>
+              <div><span className="text-green-400 font-bold">Packages:</span> <span className="text-white">2048+ (npm, maven, docker)</span></div>
+              <div><span className="text-green-400 font-bold">Shell:</span> <span className="text-white">zsh 5.9</span></div>
+              <div><span className="text-green-400 font-bold">Terminal:</span> <span className="text-white">kitty</span></div>
+              <div><span className="text-green-400 font-bold">CPU:</span> <span className="text-white">AMD Ryzen (Coffee-Powered)</span></div>
+              <div><span className="text-green-400 font-bold">Memory:</span> <span className="text-white">32GB (Never Enough)</span></div>
+              <div className="pt-2 flex gap-1">
+                <div className="w-6 h-3 bg-zinc-700"></div>
+                <div className="w-6 h-3 bg-red-500"></div>
+                <div className="w-6 h-3 bg-green-500"></div>
+                <div className="w-6 h-3 bg-yellow-500"></div>
+                <div className="w-6 h-3 bg-blue-500"></div>
+                <div className="w-6 h-3 bg-purple-500"></div>
+                <div className="w-6 h-3 bg-cyan-500"></div>
+                <div className="w-6 h-3 bg-white"></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Command typing - appears below neofetch */}
+          {showCommand && (
+            <div className="mt-4">
+              <div className="flex items-center mb-2">
+                <span className="text-green-400">arslanca@root</span>
+                <span className="text-zinc-500 mx-1">:</span>
+                <span className="text-blue-400">~</span>
+                <span className="text-zinc-500 mx-1">$</span>
+                <span className="text-zinc-300">{command}</span>
+                {!showOutput && (
+                  <span className={`ml-1 inline-block w-2 h-4 bg-zinc-300 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}></span>
+                )}
+              </div>
+
+              {/* Output */}
+              {showOutput && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-zinc-300 leading-relaxed pl-0 text-base mb-4"
+                >
+                  {motto}
+                </motion.div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MagneticWrapper = ({ children }: { children: React.ReactNode }) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -187,35 +297,8 @@ export function HomePage() {
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl tracking-tight mb-12 font-light leading-tight">
-            <div className="flex flex-col gap-2">
-                <TextDecode text="I choose simple." />
-                <motion.span
-                    initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
-                    animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                    transition={{ delay: 1.5, duration: 0.8 }}
-                    className="text-muted-foreground"
-                >
-                    I build systems that work,
-                </motion.span>
-                <motion.span
-                     initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
-                     animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                     transition={{ delay: 2.0, duration: 0.8 }}
-                     className="text-muted-foreground"
-                >
-                    systems that grow.
-                </motion.span>
-                <motion.span
-                     initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
-                     animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                     transition={{ delay: 2.5, duration: 0.8 }}
-                     className="mt-4 block text-foreground"
-                >
-                    <TextDecode text="No magic. Just logic." delay={2500} />
-                </motion.span>
-            </div>
-          </h1>
+          {/* Terminal Simulator */}
+          <TerminalSimulator />
 
           <div className="flex items-center justify-center gap-4 flex-wrap mb-16">
             <MagneticWrapper>
