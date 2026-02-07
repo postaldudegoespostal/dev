@@ -57,6 +57,15 @@ public class AuthController {
         );
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı"));
+
+        var activeTokens = refreshTokenRepository.findByUserAndRevokedOrderByExpiryDateDesc(user, false);
+        if (activeTokens.size() >= 5) {
+            activeTokens.stream()
+                    .skip(4)
+                    .forEach(token -> token.setRevoked(true));
+            refreshTokenRepository.saveAll(activeTokens);
+        }
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
